@@ -1,0 +1,19 @@
+//localhost:8080/api/diploma// - Postman
+//localhost:9001 -MinIO //
+//minioadmin - login e senha//
+//localhost:15672 - RabbitMQ//
+//guest - login e senha//
+
+
+
+{
+    "nome": "Thiago",
+    "nacionalidade": "Americano",
+    "estado": "São Paulo",
+    "dataDeNascimento": "05-08-1968",
+    "rg": "383058505",
+    "dataDeConclusao": "02-12-2022",
+    "curso": "T.I",
+    "nivelDeEspecializacao": "Bacharelado",
+    "cargaHorariaEmHoras": "4080"
+  }
