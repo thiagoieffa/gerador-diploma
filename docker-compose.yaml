@@ -1,0 +1,68 @@
+services:
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./db-postgres/ddl.sql:/docker-entrypoint-initdb.d/ddl.sql
+    ports:
+      - "5432:5432"
+
+  minio:
+    image: minio/minio:RELEASE.2024-11-07T00-52-20Z.fips
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    command: server /data --console-address :9001
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - ./diplomas:/data
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq  # Volume para persistir as mensagens
+
+  diploma-api:
+    build:
+      context: ./diploma-api
+      dockerfile: Dockerfile
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/postgres
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+    depends_on:
+      - postgres
+      - rabbitmq
+    ports:
+      - "8080:8080"
+
+  diploma-generator:
+    build:
+      context: ./diploma-generator
+      dockerfile: Dockerfile
+    depends_on:
+      - redis
+      - minio
+      - rabbitmq
+    ports:
+      - "8081:8081"
+      
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    restart: always
+
+volumes:
+  pgdata:
+  mysqldata:
+  rabbitmq_data:
